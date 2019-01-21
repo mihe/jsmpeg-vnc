@@ -2,48 +2,34 @@
 
 A low latency, high framerate screen sharing server and client, viewable in any modern browser.
 
-[More Info & Demo Video](http://phoboslab.org/log/2015/07/play-gta-v-in-your-browser-sort-of)
+This fork replaces the original GDI screen capturing with a Desktop Duplication API implementation, which greatly reduces the performance impact of running the application. It also fixes some minor issues with the WebSocket implementation. I've also (unfortunately) removed the remote input functionality due to not really needing it myself.
 
-[Download Binaries](https://github.com/phoboslab/jsmpeg-vnc/releases)
-
-
-## Usage & Performance Considerations
+## Usage
 
 ```
-jsmpeg-vnc.exe [options] <window name>
+jsmpeg-vnc.exe {OPTIONS}
 
-Options:
-	-b bitrate in kilobit/s (default: estimated by output size)
-	-s output size as WxH. E.g: -s 640x480 (default: same as window size)
-	-f target framerate (default: 60)
-	-p port (default: 8080)
-	-c crop area in the captured window as X,Y,W,H. E.g.: -c 200,300,640,480
-	-i enable/disable remote input. E.g. -i 0 (default: 1)
-
-Use "desktop" as the window name to capture the whole Desktop. Use "cursor"
-to capture the window at the current cursor position.
+OPTIONS:
+    -h, --help                        Display this help menu
+    -p[port], --port=[port]           Server port (default: 8081)
+    -x[width], --width=[width]        Width of the stream output (default: [screen width])
+    -y[height], --height=[height]     Height of the stream output (default: [screen height])
+    -b[bitrate], --bitrate=[bitrate]  Average bitrate of stream output
+    -r[fps], --fps=[fps]              Target framerate of stream output (default: 30)
+    -t[threads], --threads=[threads]  Number of threads to use for encoding (default: 2)
+    -o[output], --output=[output]     Index of the output adapter (default: 0)
 
 Example:
-jsmpeg-vnc.exe -b 2000 -s 640x480 -f 30 -p 9006 "Quake 3: Arena"
-
-To enable mouse lock in the browser (useful for games that require relative
-mouse movements, not absolute ones), append "?mouselock" at the target URL
-i.e: http://<server-ip>:8080/?mouselock
+    jsmpeg-vnc.exe -p 8080 -b 2000 -r 30
 ```	
-
-For sharing the whole Desktop, Windows' Aero theme should be disabled as it slows down screen capture significantly. When serving a single window (e.g. games), Aero only has a marginal performance impact and can be left enabled.
-
-Capturing and encoding 1920x1080 video narrowly amounts to 60fps on my system and occupies a whole CPU core. Capturing smaller windows significantly speeds up the process. Depending on your Wifi network quality you may also want to dial down the bitrate for large video sizes.
-
-If Windows complains about a missing MSVCR100.dll, install the [Microsoft Visual C++ 2010 Redistributable Package](https://www.microsoft.com/en-us/download/details.aspx?id=5555).
-
 
 ## Technology & License
 
-This App uses [ffmpeg](https://github.com/FFmpeg/FFmpeg) for encoding, [libwebsockets](https://github.com/warmcat/libwebsockets) for the WebSocket server and [jsmpeg](https://github.com/phoboslab/jsmpeg) for decoding in the browser. Note that the jsmpeg version in this repository has been modified to get rid of an extra frame of latency. The server sends each frame with a custom header, so the resulting WebSocket stream is not a valid MPEG video anymore.
+This app uses [ffmpeg][ffmpeg] for encoding, [libwebsockets][lws] for the WebSocket server and [jsmpeg][jsmpeg] for decoding in the browser. Note that the jsmpeg version in this repository has been modified to get rid of an extra frame of latency. The server sends each frame with a custom header, so the resulting WebSocket stream is not a valid MPEG video anymore.
 
-The client application (the thing that runs in the browser) is very rudimentary. In particular, the mobile version has some quirks with mouse input and only has touch buttons for the arrow keys, ESC and Enter, though this can be easily extended.
+jsmpeg-vnc is published under the [GPLv3 License][gpl].
 
-jsmpeg-vnc is published under the [GPLv3 License](http://www.gnu.org/licenses/gpl-3.0.en.html).
-
-If you require my code under a different license, or need some consulting work regarding jsmpeg/jsmpeg-vnc, get in touch: dominic@phoboslab.org
+[ffmpeg]: https://github.com/FFmpeg/FFmpeg
+[lws]: https://github.com/warmcat/libwebsockets
+[jsmpeg]: https://github.com/phoboslab/jsmpeg
+[gpl]: http://www.gnu.org/licenses/gpl-3.0.en.html
